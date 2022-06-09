@@ -5,10 +5,10 @@ import ssl
 from getpass import getpass
 from pathlib import Path
 
-from mail_creator import MailCreator
-from file import File
-from server_answer import ServerAnswer
-from SMTPException import SMTPException
+from modules.mail_creator import MailCreator
+from modules.file import File
+from modules.server_answer import ServerAnswer
+from modules.SMTPException import SMTPException
 
 
 class Client:

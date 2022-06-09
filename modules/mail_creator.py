@@ -1,4 +1,4 @@
-from file import File
+from modules.file import File
 
 
 class MailCreator:
