@@ -19,7 +19,6 @@ if __name__ == '__main__':
     try:
         client = Client(args.sender, args.to, args.subject, args.ssl, args.auth, args.verbose, args.directory,
                         args.server)
-
         client.run()
     except ValueError as e:
         print(e)

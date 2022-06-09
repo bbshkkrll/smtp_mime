@@ -7,8 +7,8 @@ from pathlib import Path
 
 from mail_creator import MailCreator
 from file import File
-
 from server_answer import ServerAnswer
+from SMTPException import SMTPException
 
 
 class Client:
@@ -55,7 +55,8 @@ class Client:
         return mail_creator.get_mail()
 
     def get_images(self):
-        return [File(Path(self.dir / filename)) for filename in os.listdir(self.dir) if filename.endswith('.jpg')]
+        return [File(Path(self.dir / filename)) for filename in os.listdir(self.dir) if
+                filename.endswith('.jpg') or filename.endswith('.png') or filename.endswith('.gif')]
 
     def recv_msg(self, sock: socket):
         msg = sock.recv(1024).decode('utf-8')
@@ -72,21 +73,24 @@ class Client:
         sock.send(msg.encode())
 
     def run(self):
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         try:
-            s.connect((self.server, self.port))
-            self.send_msg(s, f'EHLO {self.login_from.replace("@", ".")}\n')
-            self.recv_msg(s)
-            self.send_msg(s, 'starttls\n')
-            self.recv_msg(s)
-            s = ssl.wrap_socket(s)
+            sock.connect((self.server, self.port))
+            self.recv_msg(sock)
+            if self.is_ssl:
+                self.send_msg(sock, f'EHLO {self.login_from.replace("@", ".")}\n')
+                self.recv_msg(sock)
+                self.send_msg(sock, 'starttls\n')
+                self.recv_msg(sock)
+                sock = ssl.wrap_socket(sock)
             for command in self.commands:
-                self.send_msg(s, command)
-                self.recv_msg(s)
+                self.send_msg(sock, command)
+                self.recv_msg(sock)
                 if 'DATA' in command:
-                    s.send(self.create_mail().encode())
-                    self.recv_msg(s)
-        except Exception as e:
+                    sock.send(self.create_mail().encode())
+                    self.recv_msg(sock)
+
+        except SMTPException as e:
             print(e)
         finally:
-            s.close()
+            sock.close()

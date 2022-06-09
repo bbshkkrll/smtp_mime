@@ -14,7 +14,7 @@ class MailCreator:
     def add_content(self, file: File, is_last: bool):
         self.mail += f'\n\n--{self.boundary}'
         self.mail += f'\nMime-Version: 1.0'
-        self.mail += f'\nContent-Type: image/jpeg; ' \
+        self.mail += f'\nContent-Type: image/{file.file_ext}; ' \
                      f'name="=?UTF-8?B?{file.encoded_name}?="'
         self.mail += f'\nContent-Disposition: attachment; ' \
                      f'filename="=?UTF-8?B?{file.encoded_name}?="'
